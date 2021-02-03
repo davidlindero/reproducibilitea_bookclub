@@ -88,34 +88,41 @@ simulate_n_datapoints <- function(a, b, n, th, output_scores=TRUE, verbose=FALSE
 
 # run things
 
-ns_vec <- c()
-for (i in seq(1, 300, by=10)) {
-    ns_vec[i] <- as.integer(10^(i/100))
+# first line is that this following code should only 
+# be run if this script is run explicitly, not when being imported
+if (sys.nframe() == 0L) {
+    ns_vec <- c()
+    for (i in seq(1, 300, by=10)) {
+        ns_vec[i] <- as.integer(10^(i/100))
+    }
+    ns_values <- unique(ns_vec)
+    ns_values <- ns_values[ns_values > 5]
+
+    ns_values <- ns_values[!is.na(ns_values)]
+
+    all_simuls = data.frame()
+    for (ii in ns_values) {
+        curr_simul <- simulate_n_datapoints(4, 2, ii, 9, output_scores=FALSE)
+        all_simuls <- rbind(all_simuls, curr_simul)
+    }
+
+    pdf('./plots/development_dev_number_of_samples.pdf')
+    plot(all_simuls$nums, all_simuls$intercept_madsd, col="blue", xlab="Number of samples", ylim=c(0,5), pch="*")
+    points(all_simuls$nums, all_simuls$x_data_madsd, col="red", xlab="Number of samples", pch="*")
+    points(all_simuls$nums, all_simuls$sigma_madsd, col="green", xlab="Number of samples", pch="*")
+    legend("topright", legend=c("Intercept", "x_data", "sigma"), col=c("blue", "red", "green"), pch=c("*", "*", "*"), inset=c(0.02, 0.02))
+    dev.off()
+
+    pdf('./plots/actual_regression_values_nr_samples.pdf')
+    plot(all_simuls$nums, all_simuls$intercept_med, col="blue", xlab="Number of samples", ylim=c(0,10), pch="*")
+    points(all_simuls$nums, all_simuls$x_data_med, col="red", xlab="Number of samples", pch="*")
+    points(all_simuls$nums, all_simuls$sigma_med, col="green", xlab="Number of samples", pch="*")
+    legend("topright", legend=c("Intercept", "x_data", "sigma"), col=c("blue", "red", "green"), pch=c("*", "*", "*"), inset=c(0.02, 0.02))
+    dev.off()
+
 }
-ns_values <- unique(ns_vec)
-ns_values <- ns_values[ns_values > 5]
 
-ns_values <- ns_values[!is.na(ns_values)]
 
-all_simuls = data.frame()
-for (ii in ns_values) {
-    curr_simul <- simulate_n_datapoints(4, 2, ii, 9, output_scores=FALSE)
-    all_simuls <- rbind(all_simuls, curr_simul)
-}
-
-pdf('./plots/development_dev_number_of_samples.pdf')
-plot(all_simuls$nums, all_simuls$intercept_madsd, col="blue", xlab="Number of samples", ylim=c(0,5), pch="*")
-points(all_simuls$nums, all_simuls$x_data_madsd, col="red", xlab="Number of samples", pch="*")
-points(all_simuls$nums, all_simuls$sigma_madsd, col="green", xlab="Number of samples", pch="*")
-legend("topright", legend=c("Intercept", "x_data", "sigma"), col=c("blue", "red", "green"), pch=c("*", "*", "*"), inset=c(0.02, 0.02))
-dev.off()
-
-pdf('./plots/actual_regression_values_nr_samples.pdf')
-plot(all_simuls$nums, all_simuls$intercept_med, col="blue", xlab="Number of samples", ylim=c(0,10), pch="*")
-points(all_simuls$nums, all_simuls$x_data_med, col="red", xlab="Number of samples", pch="*")
-points(all_simuls$nums, all_simuls$sigma_med, col="green", xlab="Number of samples", pch="*")
-legend("topright", legend=c("Intercept", "x_data", "sigma"), col=c("blue", "red", "green"), pch=c("*", "*", "*"), inset=c(0.02, 0.02))
-dev.off()
 
 
 # simulated_data <- simulate_n_datapoints(4, 2, 100, 15, verbose=TRUE)
